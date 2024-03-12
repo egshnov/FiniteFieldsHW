@@ -37,7 +37,7 @@ MU_TEST(same_field_test) {
     mu_check(AreEqualFields(GF2, GF2));
     mu_check(AreEqualFields(GF2, GF22));
 
-    uint8_t polynom[] = {1, -2, 4};
+    int polynom[] = {1, -2, 4};
     FiniteField GF5_2 = CreateF_q(5, 2, polynom);
     FiniteField GF5_2_2 = CreateF_q(5, 2, polynom);
 
@@ -45,7 +45,7 @@ MU_TEST(same_field_test) {
     mu_check(!AreEqualFields(GF2, GF5_2_2));
     FiniteField GF7 = CreateF_p(7);
     mu_check(!AreEqualFields(GF7, GF2));
-    uint8_t polynom2[] = {1, -1, 2};
+    int polynom2[] = {1, -1, 2};
     FiniteField GF5_2_3 = CreateF_q(5, 2, polynom2);
     mu_check(!AreEqualFields(GF5_2, GF5_2_3));
     FreeField(GF5_2_3);
@@ -57,9 +57,9 @@ MU_TEST(same_field_test) {
 }
 //https://math.stackexchange.com/questions/3738494/showing-x4-2-is-irreducible-in-f-5x
 MU_TEST(neg_test) {
-    uint8_t polynom[] = {1, 0, 0, 0, 2};
+    int polynom[] = {1, 0, 0, 0, 2};
     FiniteField field = CreateF_q(5, 4, polynom);
-    uint8_t target[] = {4, 3, 0, 1, 3};
+    int target[] = {4, 3, 0, 1, 3};
     FieldElement elem = GetFromArray(field, target, 5);
     mu_check(elem != NULL);
     FieldElement neg_elem = Neg(elem);
@@ -100,10 +100,10 @@ MU_TEST_SUITE(utils) {
 }
 
 MU_TEST(addition_subtraction_test_F_q) {
-    uint8_t polynom[] = {1, 0, 0, 0, 2};
+    int polynom[] = {1, 0, 0, 0, 2};
     FiniteField field = CreateF_q(5, 4, polynom);
 
-    uint8_t target[] = {4, 3, 0, 1, 3};
+    int target[] = {4, 3, 0, 1, 3};
     FieldElement lhs = GetFromArray(field, target, 5);
 
     FieldElement add_res = Add(lhs, lhs);
@@ -111,6 +111,7 @@ MU_TEST(addition_subtraction_test_F_q) {
     mu_check(add_res->coeff_size == 5);
     uint8_t res_pol[] = {1, 2, 0, 1, 3}; //little - endian
     for (int i = 0; i < 5; i++) {
+        //printf("\n\n%d\n\n", add_res->coefficients[i]);
         mu_check(add_res->coefficients[i] == res_pol[i]);
     }
 
@@ -140,8 +141,22 @@ MU_TEST(addition_subtraction_test_F_q) {
     FreeField(field);
 }
 
+//x^32 + x^28 + x^19 + x^18 + x^16 + x^14 + x^11 + x^10 + x^9 + x^6 + x^5 + x^1 + 1
+MU_TEST(test_binary) {
+    int arr[] = {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1};
+    FiniteField field = CreateF_q(2, 32, arr);
+    for (uint32_t i = 0; i < 1000; i++) {
+        FieldElement elem = FromUint32(field, i);
+        uint32_t res = ToUint32(elem);
+        mu_check(res == i);
+        FreeElement(elem);
+    }
+    FreeField(field);
+}
+
 MU_TEST_SUITE(operations) {
     MU_RUN_TEST(addition_subtraction_test_F_q);
+    MU_RUN_TEST(test_binary);
 }
 
 int main() {
