@@ -19,8 +19,12 @@ FiniteField CreateF_p(uint8_t p) {
 }
 
 //given polynom is big-endian, stored as little-endian
+static uint8_t mod(int lhs, uint8_t p) {
+    if (lhs < 0) return p - ((-lhs) % p);
+    return lhs % p;
+}
 
-FiniteField CreateF_q(uint8_t p, uint64_t deg_polynom, uint8_t const *polynom) {
+FiniteField CreateF_q(uint8_t p, uint64_t deg_polynom, int const *polynom) {
     FiniteField field = (FiniteField) malloc(sizeof(struct FiniteField));
     if (field != NULL) {
         field->polynom_size = deg_polynom + 1;

@@ -15,7 +15,7 @@ typedef struct FiniteField *FiniteField;
 FiniteField CreateF_p(uint8_t p);
 
 // deg_polynom - polynom deg, stored deg_polynom+1
-FiniteField CreateF_q(uint8_t p, uint64_t deg_polynom, uint8_t const *polynom);
+FiniteField CreateF_q(uint8_t p, uint64_t deg_polynom, int const *polynom);
 
 bool AreEqualFields(FiniteField lhs, FiniteField rhs);
 

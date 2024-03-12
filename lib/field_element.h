@@ -4,7 +4,7 @@
 #include "stdint.h"
 #include "finite_field.h"
 #include "stdbool.h"
-
+//TODO: change size to size_t ?
 struct FieldElement {
     uint64_t coeff_size;
     uint8_t *coefficients; // little - endian
@@ -28,7 +28,7 @@ FieldElement GetIdentity(FiniteField f);
 
 FieldElement GetZero(FiniteField f);
 
-FieldElement GetFromArray(FiniteField f, uint8_t const *array, uint64_t array_size);
+FieldElement GetFromArray(FiniteField f, int const *array, uint64_t array_size);
 
 FieldElement Copy(FieldElement elem);
 
