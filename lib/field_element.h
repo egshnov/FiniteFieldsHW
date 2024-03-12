@@ -8,7 +8,7 @@
 struct FieldElement {
     uint64_t coeff_size;
     uint8_t *coefficients; // little - endian
-    FiniteField *field;
+    FiniteField field;
 };
 typedef struct FieldElement *FieldElement;
 
@@ -24,11 +24,11 @@ FieldElement Neg(FieldElement elem);
 
 FieldElement DivMod(FieldElement lhs, FieldElement rhs, FieldElement res); // - mult на обратный
 
-FieldElement GetIdentity(FiniteField *f);
+FieldElement GetIdentity(FiniteField f);
 
-FieldElement GetZero(FiniteField *f);
+FieldElement GetZero(FiniteField f);
 
-FieldElement GetFromArray(FiniteField *f, uint8_t const *arr, uint64_t n);
+FieldElement GetFromArray(FiniteField f, uint8_t const *array, uint64_t array_size);
 
 FieldElement Copy(FieldElement elem);
 

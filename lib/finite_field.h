@@ -3,13 +3,22 @@
 
 #include "stdint.h"
 #include "stdlib.h"
+#include "stdbool.h"
 
-//TODO: Make FiniteField a pointer?
-typedef struct {
+struct FiniteField {
     uint8_t p;
-    uint64_t max_n;
-    uint8_t *polynom; //irreducible operations are performed using modulo polynom
-} FiniteField;
+    uint64_t polynom_size; //polynom size
+    uint8_t *polynom; //irreducible, mult and divmod operations are performed modulo polynom
+};
+typedef struct FiniteField *FiniteField;
 
+FiniteField CreateF_p(uint8_t p);
+
+// deg_polynom - polynom deg, stored deg_polynom+1
+FiniteField CreateF_q(uint8_t p, uint64_t deg_polynom, uint8_t const *polynom);
+
+bool AreEqualFields(FiniteField lhs, FiniteField rhs);
+
+void FreeField(FiniteField f);
 
 #endif //FINITFIELDSHW_FINITE_FIELD_H

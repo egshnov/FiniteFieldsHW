@@ -1,14 +1,17 @@
 #include "field_element.h"
 #include "stdlib.h"
+#include "stdio.h"
+#include "string.h"
 
 #define MAX(a, b) (((a)>(b))?(a):(b))
 
-static FieldElement init(FiniteField *f, uint8_t n) {
+
+static FieldElement init(FiniteField f, uint8_t n) {
     FieldElement element = (FieldElement) malloc(sizeof(struct FieldElement));
     if (element != NULL) {
         element->field = f;
-        element->coeff_size = 1;
-        element->coefficients = (uint8_t *) (malloc(sizeof(uint8_t) * n));
+        element->coeff_size = n;
+        element->coefficients = (uint8_t *) (malloc(sizeof(uint8_t) * element->coeff_size));
         if (element->coefficients == NULL) {
             free(element);
             return NULL;
@@ -17,7 +20,7 @@ static FieldElement init(FiniteField *f, uint8_t n) {
     return element;
 }
 
-FieldElement GetIdentity(FiniteField *f) {
+FieldElement GetIdentity(FiniteField f) {
     FieldElement element = init(f, 1);
     if (element != NULL) {
         element->coefficients[0] = 1;
@@ -25,7 +28,7 @@ FieldElement GetIdentity(FiniteField *f) {
     return element;
 }
 
-FieldElement GetZero(FiniteField *f) {
+FieldElement GetZero(FiniteField f) {
     FieldElement element = init(f, 1);
     if (element != NULL) {
         element->coefficients[0] = 0;
@@ -33,33 +36,22 @@ FieldElement GetZero(FiniteField *f) {
     return element;
 }
 
-//TODO: check whether n > f->max_n is correct
-//polynom coefficients are stored as BigEndian
-FieldElement GetFromArray(FiniteField *f, uint8_t const *polynom, uint64_t n) {
-    if (n > f->max_n) return NULL;
-    FieldElement element = init(f, n);
+//array coefficients are stored as BigEndian
+//array_size is the size of array
+FieldElement GetFromArray(FiniteField f, uint8_t const *array, uint64_t array_size) {
+    if (array_size > f->polynom_size) return NULL;
+    FieldElement element = init(f, array_size);
     if (element != NULL) {
-        for (uint64_t i = n - 1, ind = 0; i > 0; i--, ind++) {
-            element->coefficients[ind] = polynom[i] % element->field->p;
+        for (uint64_t i = array_size - 1, ind = 0; i > 0; i--, ind++) {
+            element->coefficients[ind] = array[i] % element->field->p;
         }
-        element->coefficients[n - 1] = polynom[0] % element->field->p;
+        element->coefficients[array_size - 1] = array[0] % element->field->p;
     }
     return element;
 }
 
 bool InSameField(FieldElement lhs, FieldElement rhs) {
-    if (lhs->field == rhs->field) {
-        return true;
-    }
-    if (lhs->field->p != rhs->field->p || lhs->field->max_n != rhs->field->max_n) {
-        return false;
-    }
-    for (int i = 0; i < lhs->field->max_n; i++) {
-        if (lhs->field->polynom[i] != rhs->field->polynom[i]) {
-            return false;
-        }
-    }
-    return true;
+    return AreEqualFields(lhs->field, rhs->field);
 }
 
 
@@ -79,14 +71,29 @@ void FreeElement(FieldElement elem) {
     free(elem);
 }
 
+static bool trim_zeroes(FieldElement target) {
+    uint8_t ind = target->coeff_size - 1;
+    while (target->coefficients[ind] == 0 && ind > 0) {
+        ind--;
+    }
+    target->coeff_size = ind + 1;
+    uint8_t *insurance = target->coefficients;
+    target->coefficients = (uint8_t *) realloc(target->coefficients, target->coeff_size * sizeof(uint8_t));
+    if (target->coefficients == NULL) {
+        free(insurance);
+        return false;
+    }
+    return true;
+}
+
 static uint8_t get_ith_coeff(FieldElement elem, size_t i) {
     return i < elem->coeff_size ? elem->coefficients[i] : 0;
 }
 
 //returns NULL if ERROR occurred
+/* если поля различаются только многочленом по которому факторизуем то они изоморфны и
+    * можно было бы считать что в одном поле но тогда непонятно как проводить операции */
 FieldElement Add(FieldElement lhs, FieldElement rhs) {
-    /* если поля различаются только многочленом по которому факторизуем то они изоморфны и
-     * можно было бы считать что в одном поле но тогда непонятно как проводить операции */
     if (!InSameField(lhs, rhs)) {
         return NULL;
     }
@@ -95,12 +102,7 @@ FieldElement Add(FieldElement lhs, FieldElement rhs) {
     for (size_t i = 0; i < res->coeff_size; i++) {
         res->coefficients[i] = (get_ith_coeff(lhs, i) + get_ith_coeff(rhs, i)) % lhs->field->p;
     }
-    uint8_t ind = res->coeff_size - 1;
-    while (res->coefficients[ind] == 0) {
-        ind--;
-    }
-    res->coefficients = (uint8_t *) realloc(res->coefficients, ind + 1);
-    if (res->coefficients == NULL) {
+    if (!trim_zeroes(res)) {
         free(res);
         return NULL;
     }
@@ -111,6 +113,7 @@ static uint8_t inv_coeff(uint8_t p, uint8_t coeff) {
     return (p - coeff) % p;
 }
 
+//returns NULL if error occurred
 FieldElement Neg(FieldElement elem) {
     FieldElement res = Copy(elem);
     if (res != NULL) {
@@ -121,6 +124,7 @@ FieldElement Neg(FieldElement elem) {
     return res;
 }
 
+//returns NULL if error occurred
 FieldElement Sub(FieldElement lhs, FieldElement rhs) {
     FieldElement tmp = Neg(rhs);
     if (tmp != NULL) {
