@@ -4,11 +4,11 @@
 #include "stdint.h"
 #include "stdlib.h"
 #include "stdbool.h"
+#include "polynom.h"
 
 struct FiniteField {
     uint8_t p;
-    uint64_t polynom_size; //polynom size
-    uint8_t *polynom; //irreducible, mult and divmod operations are performed modulo polynom
+    Polynom pol;//irreducible, mult and divmod operations are performed modulo polynom
 };
 typedef struct FiniteField *FiniteField;
 

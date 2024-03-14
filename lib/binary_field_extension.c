@@ -5,8 +5,8 @@
 uint8_t ToUint8(FieldElement element) {
     uint8_t res = 0;
     uint8_t add = 1;
-    for (size_t i = 0; i < element->coeff_size; i++) {
-        res += add * element->coefficients[i];
+    for (size_t i = 0; i < element->pol->coeff_size; i++) {
+        res += add * element->pol->coefficients[i];
         add = add << 1;
     }
     return res;
@@ -15,8 +15,8 @@ uint8_t ToUint8(FieldElement element) {
 uint16_t ToUint16(FieldElement element) {
     uint16_t res = 0;
     uint16_t add = 1;
-    for (size_t i = 0; i < element->coeff_size; i++) {
-        res += add * element->coefficients[i];
+    for (size_t i = 0; i < element->pol->coeff_size; i++) {
+        res += add * element->pol->coefficients[i];
         add = add << 1;
     }
     return res;
@@ -26,8 +26,8 @@ uint16_t ToUint16(FieldElement element) {
 uint32_t ToUint32(FieldElement element) {
     uint32_t res = 0;
     uint32_t add = 1;
-    for (size_t i = 0; i < element->coeff_size; i++) {
-        res += add * element->coefficients[i];
+    for (size_t i = 0; i < element->pol->coeff_size; i++) {
+        res += add * element->pol->coefficients[i];
         add = add << 1;
     }
     return res;
