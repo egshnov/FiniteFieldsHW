@@ -13,6 +13,17 @@ static FieldElement init(FiniteField f) {
     return element;
 }
 
+static bool descend(FieldElement elem) {
+    Polynom dummy = elem->pol;
+    elem->pol = ModPolynom(elem->pol, elem->field->pol, elem->field->p);
+    FreePolynom(dummy);
+    if (elem->pol == NULL) {
+        free(elem);
+        return false;
+    }
+    return true;
+}
+
 uint64_t GetDeg(FieldElement element) {
     return PolynomDeg(element->pol);
 }
@@ -50,7 +61,10 @@ FieldElement GetFromArray(FiniteField f, int const *array, uint64_t array_size) 
         free(element);
         return NULL;
     }
-    //TODO: add normalise
+    if (!descend(element)) {
+        return NULL;
+    }
+    return element;
     return element;
 }
 
@@ -86,6 +100,78 @@ FieldElement Add(FieldElement lhs, FieldElement rhs) {
         free(res);
         return NULL;
     }
+    return res;
+}
+
+FieldElement Mult(FieldElement lhs, FieldElement rhs) {
+    if (!InSameField(lhs, rhs)) {
+        return NULL;
+    }
+    FieldElement res = init(lhs->field);
+    if (res == NULL) return NULL;
+    res->pol = MultPolynom(lhs->pol, rhs->pol, lhs->field->p);
+    if (res->pol == NULL) {
+        free(res);
+        return NULL;
+    }
+    if (!descend(res)) {
+        return NULL;
+    }
+    return res;
+}
+
+//p > 0
+FieldElement pow(FieldElement elem, unsigned int p) {
+    FieldElement res = GetIdentity(elem->field);
+    FieldElement value = Copy(elem);
+    unsigned int tmp = p;
+    while (tmp > 0) {
+        if (p % 2 == 1) {
+            FieldElement dummy = res;
+            res = Mult(res, value);
+            FreeElement(dummy);
+            if (res == NULL) return NULL;
+        }
+        FieldElement dummy = value;
+        value = Mult(value, value);
+        FreeElement(dummy);
+        if (value == NULL) return NULL;
+        tmp /= 2;
+    }
+    FreeElement(value);
+    return res;
+}
+
+static int fast_pow(int val, int pow) {
+    int result = 1;
+    while (pow > 0) {
+        if (pow % 2 == 0) {
+            result *= val;
+        }
+        val *= val;
+        pow /= 2;
+    }
+    return result;
+}
+
+FieldElement Inv(FieldElement element) {
+    return pow(element, fast_pow(element->field->p, PolynomDeg(element->field->pol)) - 2);
+}
+
+FieldElement Pow(FieldElement elem, int p) {
+    if (p < 0) {
+        FieldElement tmp = Inv(elem);
+        FieldElement res = pow(tmp, -p);
+        FreeElement(tmp);
+        return res;
+    }
+    return pow(elem, p);
+}
+
+FieldElement Division(FieldElement lhs, FieldElement rhs) {
+    FieldElement tmp = Inv(rhs);
+    FieldElement res = Mult(lhs, tmp);
+    FreeElement(tmp);
     return res;
 }
 

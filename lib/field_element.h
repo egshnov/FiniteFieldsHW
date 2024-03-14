@@ -21,11 +21,13 @@ FieldElement Sub(FieldElement lhs, FieldElement rhs);
 
 FieldElement Mult(FieldElement lhs, FieldElement rhs);
 
+FieldElement Pow(FieldElement elem, int deg);
+
 FieldElement Inv(FieldElement elem); // a^(-1) = a^(p^n-2)
 
 FieldElement Neg(FieldElement elem);
 
-uint8_t DivMod(FieldElement lhs, FieldElement rhs, FieldElement quotient, FieldElement remainder);
+FieldElement Division(FieldElement lhs, FieldElement rhs);
 
 FieldElement GetIdentity(FiniteField f);
 
