@@ -1,5 +1,4 @@
 #include "finite_field.h"
-#include "stdio.h"
 
 FiniteField CreateF_p(uint8_t p) {
     FiniteField field = (FiniteField) malloc(sizeof(struct FiniteField));
@@ -45,7 +44,7 @@ bool AreEqualFields(FiniteField lhs, FiniteField rhs) {
     if (lhs->p != rhs->p) {
         return false;
     }
-    return AreEqual(lhs->pol, rhs->pol);
+    return AreEqualPolynoms(lhs->pol, rhs->pol);
 }
 
 void FreeField(FiniteField f) {

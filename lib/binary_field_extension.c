@@ -1,6 +1,5 @@
 #include "binary_field_extension.h"
 #include "field_element.h"
-#include "stdio.h"
 
 uint8_t ToUint8(FieldElement element) {
     uint8_t res = 0;

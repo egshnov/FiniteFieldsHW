@@ -17,13 +17,9 @@ Polynom SubPolynom(Polynom lhs, Polynom rhs, uint8_t p);
 
 Polynom MultPolynom(Polynom lhs, Polynom rhs, uint8_t p);
 
-Polynom InvPolynom(Polynom elem, uint8_t p); // a^(-1) = a^(p^n-2)
-
 Polynom NegPolynom(Polynom elem, uint8_t p);
 
 Polynom ModPolynom(Polynom lhs, Polynom rhs, uint8_t p);
-
-uint8_t DivPolynom(Polynom lhs, Polynom rhs, Polynom quotient);
 
 Polynom IdentityPolynom();
 
@@ -35,9 +31,11 @@ Polynom CopyPolynom(Polynom elem);
 
 uint64_t PolynomDeg(Polynom elem);
 
-bool AreEqual(Polynom lhs, Polynom rhs);
+bool AreEqualPolynoms(Polynom lhs, Polynom rhs);
 
-bool IsZero(Polynom pol);
+bool IsZeroPolynom(Polynom pol);
+
+bool IsIdentityPolynom(Polynom pol);
 
 void FreePolynom(Polynom elem);
 

@@ -1,7 +1,6 @@
 #include "field_element.h"
-#include "stdlib.h"
-#include "stdio.h"
-#include "string.h"
+#include <stdlib.h>
+#include <string.h>
 
 #define MAX(a, b) (((a)>(b))?(a):(b))
 
@@ -37,6 +36,10 @@ FieldElement GetIdentity(FiniteField f) {
         return NULL;
     }
     return element;
+}
+
+bool IsZero(FieldElement element) {
+    return IsZeroPolynom(element->pol);
 }
 
 FieldElement GetZero(FiniteField f) {
@@ -120,12 +123,36 @@ FieldElement Mult(FieldElement lhs, FieldElement rhs) {
     return res;
 }
 
+static int int_fast_pow(int val, int pow) {
+    if (val == 0) return 0;
+    if (val == 1) return 1;
+    int result = 1;
+    while (pow > 0) {
+        if (pow % 2 == 1) {
+            result *= val;
+        }
+        val *= val;
+        pow /= 2;
+    }
+    return result;
+}
+
 //p > 0
-FieldElement pow(FieldElement elem, unsigned int p) {
+static FieldElement element_fast_pow(FieldElement elem, unsigned int p) {
+    if (IsZeroPolynom(elem->pol)) {
+        return GetZero(elem->field);
+    }
+    if (IsIdentityPolynom(elem->pol)) {
+        return GetIdentity(elem->field);
+    }
     FieldElement res = GetIdentity(elem->field);
     FieldElement value = Copy(elem);
-    unsigned int tmp = p;
-    while (tmp > 0) {
+    if (res == NULL || value == NULL) {
+        FreeElement(res);
+        FreeElement(value);
+        return NULL;
+    }
+    while (p > 0) {
         if (p % 2 == 1) {
             FieldElement dummy = res;
             res = Mult(res, value);
@@ -136,40 +163,31 @@ FieldElement pow(FieldElement elem, unsigned int p) {
         value = Mult(value, value);
         FreeElement(dummy);
         if (value == NULL) return NULL;
-        tmp /= 2;
+        p /= 2;
     }
     FreeElement(value);
     return res;
 }
 
-static int fast_pow(int val, int pow) {
-    int result = 1;
-    while (pow > 0) {
-        if (pow % 2 == 0) {
-            result *= val;
-        }
-        val *= val;
-        pow /= 2;
-    }
-    return result;
-}
-
 FieldElement Inv(FieldElement element) {
-    return pow(element, fast_pow(element->field->p, PolynomDeg(element->field->pol)) - 2);
+    if (IsZero(element)) return NULL;
+    return element_fast_pow(element, int_fast_pow(element->field->p, PolynomDeg(element->field->pol)) - 2);
 }
 
 FieldElement Pow(FieldElement elem, int p) {
     if (p < 0) {
         FieldElement tmp = Inv(elem);
-        FieldElement res = pow(tmp, -p);
+        FieldElement res = element_fast_pow(tmp, -p);
         FreeElement(tmp);
         return res;
     }
-    return pow(elem, p);
+    return element_fast_pow(elem, p);
 }
 
 FieldElement Division(FieldElement lhs, FieldElement rhs) {
+    if (IsZeroPolynom(rhs->pol)) return NULL;
     FieldElement tmp = Inv(rhs);
+    if (tmp == NULL) return NULL;
     FieldElement res = Mult(lhs, tmp);
     FreeElement(tmp);
     return res;
@@ -192,4 +210,8 @@ FieldElement Sub(FieldElement lhs, FieldElement rhs) {
         return res;
     }
     return NULL;
+}
+
+bool AreEqual(FieldElement lhs, FieldElement rhs) {
+    return InSameField(lhs, rhs) && AreEqualPolynoms(lhs->pol, rhs->pol);
 }

@@ -39,6 +39,10 @@ FieldElement Copy(FieldElement elem);
 
 bool InSameField(FieldElement lhs, FieldElement rhs);
 
+bool AreEqual(FieldElement lhs, FieldElement rhs);
+
+bool IsZero(FieldElement elem);
+
 uint64_t GetDeg(FieldElement elem);
 
 void FreeElement(FieldElement elem);

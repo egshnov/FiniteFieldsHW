@@ -1,14 +1,14 @@
 #ifndef FINITFIELDSHW_FINITE_FIELD_H
 #define FINITFIELDSHW_FINITE_FIELD_H
 
-#include "stdint.h"
-#include "stdlib.h"
-#include "stdbool.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "polynom.h"
 
 struct FiniteField {
     uint8_t p;
-    Polynom pol;//irreducible, mult and divmod operations are performed modulo polynom
+    Polynom pol; //irreducible, mult and division operations are performed modulo polynom
 };
 typedef struct FiniteField *FiniteField;
 

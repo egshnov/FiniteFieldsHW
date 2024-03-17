@@ -1,11 +1,11 @@
 #include "polynom.h"
-#include "stdlib.h"
-#include "stdbool.h"
+#include <stdlib.h>
+#include <stdbool.h>
 
 #define MAX(a, b) (((a)>(b))?(a):(b))
 
 static uint8_t mod(int lhs, uint8_t p) {
-    if (lhs < 0) return p - ((-lhs) % p);
+    if (lhs < 0) return (p - ((-lhs) % p)) % p;
     return lhs % p;
 }
 
@@ -13,7 +13,7 @@ static uint8_t get_ith_coeff(Polynom elem, size_t i) {
     return i < elem->coeff_size ? elem->coefficients[i] : 0;
 }
 
-Polynom init(uint64_t n) {
+static Polynom init(uint64_t n) {
     Polynom element = (Polynom) malloc(sizeof(struct Polynom));
     if (element != NULL) {
         element->coeff_size = n;
@@ -130,7 +130,7 @@ Polynom SubPolynom(Polynom lhs, Polynom rhs, uint8_t p) {
     return NULL;
 }
 
-bool AreEqual(Polynom lhs, Polynom rhs) {
+bool AreEqualPolynoms(Polynom lhs, Polynom rhs) {
     if (lhs->coeff_size != rhs->coeff_size) {
         return false;
     }
@@ -151,6 +151,7 @@ Polynom MultPolynom(Polynom lhs, Polynom rhs, uint8_t p) {
     for (int i = 0; i < lhs->coeff_size; i++) {
         for (int j = 0; j < rhs->coeff_size; j++) {
             res->coefficients[i + j] += mod(lhs->coefficients[i] * rhs->coefficients[j], p);
+            res->coefficients[i + j] = mod(res->coefficients[i + j], p);
         }
     }
     if (!trim_zeroes(res)) {
@@ -159,44 +160,54 @@ Polynom MultPolynom(Polynom lhs, Polynom rhs, uint8_t p) {
     return res;
 }
 
-bool IsZero(Polynom pol) {
+bool IsZeroPolynom(Polynom pol) {
     return pol->coeff_size == 1 && pol->coefficients[0] == 0;
 }
 
-//TODO: fix uints может ломаться на F_p
+bool IsIdentityPolynom(Polynom pol) {
+    return pol->coeff_size == 1 && pol->coefficients[0] == 1;
+}
+
 Polynom ModPolynom(Polynom lhs, Polynom rhs, uint8_t p) {
-    if (IsZero(rhs)) return NULL;
+    if (IsZeroPolynom(rhs)) return NULL;
     if (PolynomDeg(lhs) < PolynomDeg(rhs)) {
         return CopyPolynom(lhs);
     }
-    Polynom quotient = ZeroPolynom();
     Polynom remainder = CopyPolynom(lhs);
-    if (quotient == NULL || remainder == NULL) {
-        return NULL;
-    }
-    while (!IsZero(remainder) && PolynomDeg(remainder) >= PolynomDeg(rhs)) {
-        uint8_t coeff = mod(remainder->coefficients[remainder->coeff_size - 1] / rhs->coefficients[rhs->coeff_size - 1],
-                            p);
-        uint64_t deg = mod(PolynomDeg(remainder) - PolynomDeg(rhs), p);
-        int *tmp_coeffs = (int *) (malloc(sizeof(int) * (deg + 1)));
-        tmp_coeffs[0] = coeff;
-        for (int i = 1; i < deg + 1; i++) {
-            tmp_coeffs[i] = 0;
+    if (remainder == NULL) return NULL;
+    if (PolynomDeg(remainder) == 0 && PolynomDeg(rhs) == 0 && remainder->coefficients[0] < rhs->coefficients[0]) {
+        remainder->coefficients[0] = mod(remainder->coefficients[0], rhs->coefficients[0]);
+    } else {
+        Polynom quotient = ZeroPolynom();
+        if (quotient == NULL) {
+            FreePolynom(remainder);
+            return NULL;
         }
-        Polynom tmp = PolynomFromArray(tmp_coeffs, deg + 1, p);
-        Polynom dummy = quotient;
+        while (!IsZeroPolynom(remainder) && PolynomDeg(remainder) >= PolynomDeg(rhs)) {
+            uint8_t coeff = mod(
+                    remainder->coefficients[remainder->coeff_size - 1] / rhs->coefficients[rhs->coeff_size - 1],
+                    p);
+            uint64_t deg = PolynomDeg(remainder) - PolynomDeg(rhs);
+            int *tmp_coeffs = (int *) (malloc(sizeof(int) * (deg + 1)));
+            tmp_coeffs[0] = coeff;
+            for (int i = 1; i < deg + 1; i++) {
+                tmp_coeffs[i] = 0;
+            }
+            Polynom tmp = PolynomFromArray(tmp_coeffs, deg + 1, p);
+            Polynom dummy = quotient;
 
-        quotient = AddPolynom(quotient, tmp, p);
-        FreePolynom(dummy);
-        dummy = remainder;
-        Polynom mult = MultPolynom(tmp, rhs, p);
-        remainder = SubPolynom(remainder, mult, p);
+            quotient = AddPolynom(quotient, tmp, p);
+            FreePolynom(dummy);
+            dummy = remainder;
+            Polynom mult = MultPolynom(tmp, rhs, p);
+            remainder = SubPolynom(remainder, mult, p);
 
-        FreePolynom(dummy);
-        FreePolynom(mult);
-        FreePolynom(tmp);
-        free(tmp_coeffs);
+            FreePolynom(dummy);
+            FreePolynom(mult);
+            FreePolynom(tmp);
+            free(tmp_coeffs);
+        }
+        FreePolynom(quotient);
     }
-    FreePolynom(quotient);
     return remainder;
 }
