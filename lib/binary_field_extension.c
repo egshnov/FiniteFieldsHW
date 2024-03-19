@@ -34,7 +34,7 @@ uint32_t ToUint32(FieldElement element) {
 
 // общую функцию по типу to_binary_array(int n, int len)
 // писать не хочется т.к. используется type tmp и получаются
-// непонятные касты которых хочется избежать, при этом не хочется дублировать код
+// касты которых хочется избежать, при этом не хочется дублировать код
 
 #define uint_to_binary_array(type, n, target, count) ({ \
     type tmp = n;                                     \
