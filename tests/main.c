@@ -91,7 +91,7 @@ MU_TEST(same_field_test) {
     FreeField(GF5_2);
     FreeField(GF5_2_2);
 }
-//https://math.stackexchange.com/questions/3738494/showing-x4-2-is-irreducible-in-f-5x
+
 MU_TEST(neg_test) {
     int polynom[] = {1, 0, 0, 0, 2};
     FiniteField field = CreateF_q(5, 4, polynom);
@@ -206,7 +206,6 @@ MU_TEST(addition_subtraction_test) {
         FieldElement identity = GetIdentity(GF7);
         for (int i = 0; i < 37; i++) {
             mu_check(sum->pol->coeff_size == 1);
-            //printf("\n%d %d %d\n", -i, sum->pol->coefficients[0], mod(-i, 7));
             mu_check(sum->pol->coefficients[0] == mod(-i, 7));
             FieldElement tmp = sum;
             sum = Sub(sum, identity);
@@ -249,7 +248,7 @@ MU_TEST(multiplication_test) {
     }
     {
         FiniteField GF7 = CreateF_p(7);
-        for (int i = 1; i < 37; i++) {
+        for (int i = 0; i < 37; i++) {
             for (int j = 1; j < 37; j++) {
                 int l[] = {i};
                 int r[] = {j};
@@ -334,6 +333,21 @@ MU_TEST(inv_test) {
         inversion(2, 4, irreducible, rhs, 3);
         inversion(2, 4, irreducible, res, 4);
     }
+    {
+        FiniteField f = CreateF_p(7);
+        for (int i = 1; i < 7; i++) {
+            int arr[] = {1};
+            FieldElement elem = GetFromArray(f, arr, 1);
+            FieldElement inv_elem = Inv(elem);
+            FieldElement res = Mult(elem, inv_elem);
+            mu_check(IsIdentity(res));
+            FreeElement(elem);
+            FreeElement(inv_elem);
+            FreeElement(res);
+        }
+        FreeField(f);
+    }
+
 }
 
 MU_TEST(division_test) {
