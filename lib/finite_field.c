@@ -23,7 +23,7 @@ static uint8_t mod(int lhs, uint8_t p) {
     return lhs % p;
 }
 
-FiniteField CreateF_q(uint8_t p, uint64_t deg_polynom, int const *polynom) {
+FiniteField CreateF_q(uint8_t p, uint8_t deg_polynom, int const *polynom) {
     FiniteField field = (FiniteField) malloc(sizeof(struct FiniteField));
     if (field != NULL) {
         field->pol = PolynomFromArray(polynom, deg_polynom + 1, p);

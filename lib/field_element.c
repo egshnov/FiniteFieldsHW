@@ -23,7 +23,7 @@ static bool descend(FieldElement elem) {
     return true;
 }
 
-uint64_t GetDeg(FieldElement element) {
+uint8_t GetDeg(FieldElement element) {
     return PolynomDeg(element->pol);
 }
 
@@ -56,7 +56,7 @@ FieldElement GetZero(FiniteField f) {
 
 //array coefficients are stored as BigEndian
 //array_size is the size of array
-FieldElement GetFromArray(FiniteField f, int const *array, uint64_t array_size) {
+FieldElement GetFromArray(FiniteField f, int const *array, uint8_t array_size) {
     FieldElement element = init(f);
     if (element == NULL) return NULL;
     element->pol = PolynomFromArray(array, array_size, f->p);
@@ -68,14 +68,13 @@ FieldElement GetFromArray(FiniteField f, int const *array, uint64_t array_size) 
         return NULL;
     }
     return element;
-    return element;
 }
 
 bool InSameField(FieldElement lhs, FieldElement rhs) {
     return AreEqualFields(lhs->field, rhs->field);
 }
 
-//return NUll if error occurred
+//returns NUll if error occurred
 FieldElement Copy(FieldElement elem) {
     FieldElement res = init(elem->field);
     if (res != NULL) {

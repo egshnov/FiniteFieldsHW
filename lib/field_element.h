@@ -6,7 +6,6 @@
 #include <stdbool.h>
 #include "polynom.h"
 
-//TODO: change size to size_t ?
 struct FieldElement {
     Polynom pol;// little - endian
     FiniteField field;
@@ -33,7 +32,7 @@ FieldElement GetIdentity(FiniteField f);
 
 FieldElement GetZero(FiniteField f);
 
-FieldElement GetFromArray(FiniteField f, int const *array, uint64_t array_size);
+FieldElement GetFromArray(FiniteField f, int const *array, uint8_t array_size);
 
 FieldElement Copy(FieldElement elem);
 
@@ -43,7 +42,7 @@ bool AreEqual(FieldElement lhs, FieldElement rhs);
 
 bool IsZero(FieldElement elem);
 
-uint64_t GetDeg(FieldElement elem);
+uint8_t GetDeg(FieldElement elem);
 
 void FreeElement(FieldElement elem);
 

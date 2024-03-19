@@ -6,7 +6,7 @@
 
 //polynom with coefficents from F_p
 struct Polynom {
-    uint64_t coeff_size;
+    uint8_t coeff_size;
     uint8_t *coefficients; // little - endian
 };
 typedef struct Polynom *Polynom;
@@ -25,11 +25,11 @@ Polynom IdentityPolynom();
 
 Polynom ZeroPolynom();
 
-Polynom PolynomFromArray(int const *array, uint64_t array_size, uint8_t p);
+Polynom PolynomFromArray(int const *array, uint8_t array_size, uint8_t p);
 
 Polynom CopyPolynom(Polynom elem);
 
-uint64_t PolynomDeg(Polynom elem);
+uint8_t PolynomDeg(Polynom elem);
 
 bool AreEqualPolynoms(Polynom lhs, Polynom rhs);
 

@@ -22,9 +22,9 @@ static int int_fast_pow(int val, int pow) {
 }
 
 static void
-operation_test(uint8_t p, uint64_t deg, int *irreducible, int *lhs_pol, uint64_t lhs_size, int *rhs_pol,
-               uint64_t rhs_size,
-               int *res_pol, uint64_t res_size, FieldElement (*operation)(FieldElement, FieldElement)) {
+operation_test(uint8_t p, uint8_t deg, int *irreducible, int *lhs_pol, uint8_t lhs_size, int *rhs_pol,
+               uint8_t rhs_size,
+               int *res_pol, uint8_t res_size, FieldElement (*operation)(FieldElement, FieldElement)) {
     FiniteField field = CreateF_q(p, deg, irreducible);
     FieldElement lhs = GetFromArray(field, lhs_pol, lhs_size);
     FieldElement rhs = GetFromArray(field, rhs_pol, rhs_size);
@@ -290,7 +290,7 @@ MU_TEST(pow_test) {
     FreeField(field);
 }
 
-static void inversion(uint8_t p, uint64_t deg, int *irreducible, int *target, int target_size) {
+static void inversion(uint8_t p, uint8_t deg, int *irreducible, int *target, int target_size) {
     FiniteField field = CreateF_q(p, deg, irreducible);
     FieldElement elem = GetFromArray(field, target, target_size);
     FieldElement elem_inv = Inv(elem);

@@ -13,7 +13,7 @@ static uint8_t get_ith_coeff(Polynom elem, size_t i) {
     return i < elem->coeff_size ? elem->coefficients[i] : 0;
 }
 
-static Polynom init(uint64_t n) {
+static Polynom init(uint8_t n) {
     Polynom element = (Polynom) malloc(sizeof(struct Polynom));
     if (element != NULL) {
         element->coeff_size = n;
@@ -45,7 +45,7 @@ static uint8_t inv_coeff(uint8_t p, uint8_t coeff) {
     return (p - coeff) % p;
 }
 
-uint64_t PolynomDeg(Polynom element) {
+uint8_t PolynomDeg(Polynom element) {
     return element->coeff_size - 1;
 }
 
@@ -65,10 +65,10 @@ Polynom ZeroPolynom() {
     return element;
 }
 
-Polynom PolynomFromArray(int const *array, uint64_t array_size, uint8_t p) {
+Polynom PolynomFromArray(int const *array, uint8_t array_size, uint8_t p) {
     Polynom element = init(array_size);
     if (element != NULL) {
-        for (uint64_t i = array_size - 1, ind = 0; i > 0; i--, ind++) {
+        for (uint8_t i = array_size - 1, ind = 0; i > 0; i--, ind++) {
             element->coefficients[ind] = mod(array[i], p);
         }
         element->coefficients[array_size - 1] = mod(array[0], p);
@@ -175,7 +175,7 @@ Polynom ModPolynom(Polynom lhs, Polynom rhs, uint8_t p) {
     }
     Polynom remainder = CopyPolynom(lhs);
     if (remainder == NULL) return NULL;
-    if (PolynomDeg(remainder) == 0 && PolynomDeg(rhs) == 0 && remainder->coefficients[0] < rhs->coefficients[0]) {
+    if (PolynomDeg(remainder) == 0 && PolynomDeg(rhs) == 0 ) {
         remainder->coefficients[0] = mod(remainder->coefficients[0], rhs->coefficients[0]);
     } else {
         Polynom quotient = ZeroPolynom();
@@ -187,7 +187,7 @@ Polynom ModPolynom(Polynom lhs, Polynom rhs, uint8_t p) {
             uint8_t coeff = mod(
                     remainder->coefficients[remainder->coeff_size - 1] / rhs->coefficients[rhs->coeff_size - 1],
                     p);
-            uint64_t deg = PolynomDeg(remainder) - PolynomDeg(rhs);
+            uint8_t deg = PolynomDeg(remainder) - PolynomDeg(rhs);
             int *tmp_coeffs = (int *) (malloc(sizeof(int) * (deg + 1)));
             tmp_coeffs[0] = coeff;
             for (int i = 1; i < deg + 1; i++) {
@@ -195,7 +195,6 @@ Polynom ModPolynom(Polynom lhs, Polynom rhs, uint8_t p) {
             }
             Polynom tmp = PolynomFromArray(tmp_coeffs, deg + 1, p);
             Polynom dummy = quotient;
-
             quotient = AddPolynom(quotient, tmp, p);
             FreePolynom(dummy);
             dummy = remainder;
