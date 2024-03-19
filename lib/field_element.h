@@ -11,8 +11,6 @@ struct FieldElement {
     FiniteField field;
 };
 typedef struct FieldElement *FieldElement;
-#define ERROR 1
-#define SUCCESS 0
 
 FieldElement Add(FieldElement lhs, FieldElement rhs);
 
@@ -42,7 +40,9 @@ bool AreEqual(FieldElement lhs, FieldElement rhs);
 
 bool IsZero(FieldElement elem);
 
-uint8_t GetDeg(FieldElement elem);
+bool IsIdentity(FieldElement elem);
+
+int8_t GetDeg(FieldElement elem);
 
 void FreeElement(FieldElement elem);
 

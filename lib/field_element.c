@@ -23,7 +23,8 @@ static bool descend(FieldElement elem) {
     return true;
 }
 
-uint8_t GetDeg(FieldElement element) {
+int8_t GetDeg(FieldElement element) {
+    if (IsZero(element)) return -1;
     return PolynomDeg(element->pol);
 }
 
@@ -42,6 +43,10 @@ bool IsZero(FieldElement element) {
     return IsZeroPolynom(element->pol);
 }
 
+bool IsIdentity(FieldElement element) {
+    return IsIdentityPolynom(element->pol);
+}
+
 FieldElement GetZero(FiniteField f) {
     FieldElement element = init(f);
     if (element == NULL) return NULL;
@@ -54,7 +59,7 @@ FieldElement GetZero(FiniteField f) {
     return element;
 }
 
-//array coefficients are stored as BigEndian
+//array coefficients are stored as big - endian
 //array_size is the size of array
 FieldElement GetFromArray(FiniteField f, int const *array, uint8_t array_size) {
     FieldElement element = init(f);
@@ -170,7 +175,9 @@ static FieldElement element_fast_pow(FieldElement elem, unsigned int p) {
 
 FieldElement Inv(FieldElement element) {
     if (IsZero(element)) return NULL;
-    return element_fast_pow(element, int_fast_pow(element->field->p, PolynomDeg(element->field->pol)) - 2);
+    uint64_t pn = element->field->pol == NULL ? element->field->p - 1 : int_fast_pow(element->field->p,
+                                                                                     PolynomDeg(element->field->pol));
+    return element_fast_pow(element, pn - 2);
 }
 
 FieldElement Pow(FieldElement elem, int p) {
