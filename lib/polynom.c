@@ -46,6 +46,7 @@ static uint8_t inv_coeff(uint8_t p, uint8_t coeff) {
 }
 
 uint8_t PolynomDeg(Polynom element) {
+    if (element == NULL) return 0;
     return element->coeff_size - 1;
 }
 
@@ -161,6 +162,7 @@ Polynom MultPolynom(Polynom lhs, Polynom rhs, uint8_t p) {
 }
 
 bool IsZeroPolynom(Polynom pol) {
+    if(pol == NULL) return false;
     return pol->coeff_size == 1 && pol->coefficients[0] == 0;
 }
 
@@ -175,8 +177,8 @@ Polynom ModPolynom(Polynom lhs, Polynom rhs, uint8_t p) {
     }
     Polynom remainder = CopyPolynom(lhs);
     if (remainder == NULL) return NULL;
-    if (PolynomDeg(remainder) == 0 && PolynomDeg(rhs) == 0 ) {
-        remainder->coefficients[0] = mod(remainder->coefficients[0], rhs->coefficients[0]);
+    if (PolynomDeg(remainder) == 0 && PolynomDeg(rhs) == 0) {
+        remainder->coefficients[0] = mod(remainder->coefficients[0], p);
     } else {
         Polynom quotient = ZeroPolynom();
         if (quotient == NULL) {

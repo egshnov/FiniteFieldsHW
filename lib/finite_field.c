@@ -2,19 +2,10 @@
 
 FiniteField CreateF_p(uint8_t p) {
     FiniteField field = (FiniteField) malloc(sizeof(struct FiniteField));
-    if (field != NULL) {
-        field->p = p;
-        field->pol = (Polynom) malloc(sizeof(struct Polynom));
-        if (field->pol == NULL) {
-            free(field);
-            return NULL;
-        }
-        field->pol->coeff_size = 1;
-        field->pol->coefficients = malloc(sizeof(uint8_t));
-        field->pol->coefficients[0] = p;
-        return field;
-    }
-    return NULL;
+    if (field == NULL) return NULL;
+    field->p = p;
+    field->pol = NULL;
+    return field;
 }
 
 //given polynom is big-endian, stored as little-endian
@@ -44,6 +35,7 @@ bool AreEqualFields(FiniteField lhs, FiniteField rhs) {
     if (lhs->p != rhs->p) {
         return false;
     }
+    if (lhs->pol == NULL || rhs->pol == NULL) return lhs->pol == rhs->pol && lhs->p == rhs->p;
     return AreEqualPolynoms(lhs->pol, rhs->pol);
 }
 
