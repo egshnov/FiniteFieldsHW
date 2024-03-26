@@ -7,4 +7,3 @@ enable_testing()
 
 add_subdirectory(lib)
 add_subdirectory(tests)
-target_include_directories(tst PUBLIC lib)

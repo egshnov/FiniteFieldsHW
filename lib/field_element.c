@@ -14,7 +14,7 @@ static FieldElement init(FiniteField f) {
 
 static bool descend(FieldElement elem) {
     Polynom dummy = elem->pol;
-    elem->pol = ModPolynom(elem->pol, elem->field->pol, elem->field->p);
+    elem->pol = ModPolynom(elem->pol, elem->field->pol);
     FreePolynom(dummy);
     if (elem->pol == NULL) {
         free(elem);
@@ -23,15 +23,10 @@ static bool descend(FieldElement elem) {
     return true;
 }
 
-int8_t GetDeg(FieldElement element) {
-    if (IsZero(element)) return -1;
-    return PolynomDeg(element->pol);
-}
-
 FieldElement GetIdentity(FiniteField f) {
     FieldElement element = init(f);
     if (element == NULL) return NULL;
-    element->pol = IdentityPolynom();
+    element->pol = IdentityPolynom(f->p);
     if (element->pol == NULL) {
         free(element);
         return NULL;
@@ -50,7 +45,7 @@ bool IsIdentity(FieldElement element) {
 FieldElement GetZero(FiniteField f) {
     FieldElement element = init(f);
     if (element == NULL) return NULL;
-    element->pol = ZeroPolynom();
+    element->pol = ZeroPolynom(f->p);
     if (element->pol == NULL) {
         free(element);
         return NULL;
@@ -102,7 +97,7 @@ FieldElement Add(FieldElement lhs, FieldElement rhs) {
     }
     FieldElement res = init(lhs->field);
     if (res == NULL) return NULL;
-    res->pol = AddPolynom(lhs->pol, rhs->pol, lhs->field->p);
+    res->pol = AddPolynom(lhs->pol, rhs->pol);
     if (res->pol == NULL) {
         free(res);
         return NULL;
@@ -116,7 +111,7 @@ FieldElement Mult(FieldElement lhs, FieldElement rhs) {
     }
     FieldElement res = init(lhs->field);
     if (res == NULL) return NULL;
-    res->pol = MultPolynom(lhs->pol, rhs->pol, lhs->field->p);
+    res->pol = MultPolynom(lhs->pol, rhs->pol);
     if (res->pol == NULL) {
         free(res);
         return NULL;
@@ -203,7 +198,7 @@ FieldElement Division(FieldElement lhs, FieldElement rhs) {
 FieldElement Neg(FieldElement elem) {
     FieldElement res = init(elem->field);
     if (res == NULL) return NULL;
-    res->pol = NegPolynom(elem->pol, elem->field->p);
+    res->pol = NegPolynom(elem->pol);
     return res;
 }
 
@@ -219,5 +214,5 @@ FieldElement Sub(FieldElement lhs, FieldElement rhs) {
 }
 
 bool AreEqual(FieldElement lhs, FieldElement rhs) {
-    return InSameField(lhs, rhs) && AreEqualPolynoms(lhs->pol, rhs->pol);
+    return InSameField(lhs, rhs) && AreEqualPolynom(lhs->pol, rhs->pol);
 }

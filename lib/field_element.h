@@ -42,8 +42,6 @@ bool IsZero(FieldElement elem);
 
 bool IsIdentity(FieldElement elem);
 
-int8_t GetDeg(FieldElement elem);
-
 void FreeElement(FieldElement elem);
 
 

@@ -128,7 +128,20 @@ MU_TEST(copy_test) {
     FreeElement(res);
 }
 
+MU_TEST(equality_test) {
+    int polynom[] = {1, 0, 0, 0, 2};
+    FiniteField field = CreateF_q(5, 4, polynom);
+    int target[] = {4, 3, 0, 1, 3};
+    FieldElement elem1 = GetFromArray(field, target, 5);
+    FieldElement elem2 = GetFromArray(field, target, 5);
+    mu_check(AreEqual(elem1, elem2));
+    FreeElement(elem2);
+    FreeElement(elem1);
+    FreeField(field);
+}
+
 MU_TEST_SUITE(utils) {
+    MU_RUN_TEST(equality_test);
     MU_RUN_TEST(zero_identity_different_fields);
     MU_RUN_TEST(neg_test);
     MU_RUN_TEST(same_field_test);
@@ -255,6 +268,9 @@ MU_TEST(multiplication_test) {
                 FieldElement lhs = GetFromArray(GF7, l, 1);
                 FieldElement rhs = GetFromArray(GF7, r, 1);
                 FieldElement res = Mult(lhs, rhs);
+                mu_check(lhs != NULL);
+                mu_check(rhs != NULL);
+                mu_check(res != NULL);
                 mu_check(res->pol->coeff_size == 1);
                 mu_check(res->pol->coefficients[0] == mod(i * j, 7));
                 FreeElement(res);
